@@ -37,6 +37,18 @@ pip install -r requirements.txt
 
 ## Brug
 
+### ⚠️ VIGTIGT at forstå
+
+Modellen sammenligner **nuværende valgdata** med **forrige valgdata** for at beregne swing.
+
+**På valgnatten** vil du have:
+- **Forrige valg**: Komplet data fra 2021 (alle valgsteder)
+- **Nuværende valg**: Delvis live data fra det nye valg (kun optalte valgsteder)
+
+Modellen beregner swing for hvert parti og prediктerer det endelige resultat.
+
+**VIGTIGT**: Hvis du bruger samme data til både "nuværende" og "forrige" (som i grundeksemplet), vil swing altid være 1.0, og prediктionen vil være identisk med forrige valgs resultat. Dette er ikke en fejl - det er sådan modellen fungerer! På valgnatten vil data være forskellige.
+
 ### Grundlæggende eksempel
 
 ```python
@@ -130,16 +142,26 @@ model.print_resultat(pred, f"Prediкtion ({len(optalte)} valgsteder)")
 
 ## Test
 
-Kør eksemplet:
+### Grundlæggende test
 
 ```bash
 python valgmodel.py
 ```
 
-Dette viser:
-1. Det faktiske resultat fra 2021
-2. En simuleret prediкtion baseret på nogle få valgsteder
-3. Forskellen mellem prediкtion og faktisk resultat
+Dette viser modellens grundstruktur (men giver samme resultat som 2021 fordi vi bruger samme data).
+
+### Realistisk test med faktiske ændringer
+
+```bash
+python test_realistic.py
+```
+
+Dette simulerer et rigtigt valg hvor:
+- Enhedslisten (Ø) går 5pp frem
+- Socialdemokratiet (A) går 3pp tilbage
+- Konservative (C) går 2pp tilbage
+
+Og viser hvordan modellen prediктerer korrekt baseret på delvist optalte valgsteder.
 
 ## Licens
 
