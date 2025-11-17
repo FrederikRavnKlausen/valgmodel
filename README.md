@@ -163,6 +163,96 @@ Dette simulerer et rigtigt valg hvor:
 
 Og viser hvordan modellen prediктerer korrekt baseret på delvist optalte valgsteder.
 
+## Mandatfordeling
+
+Systemet inkluderer også D'Hondt-metoden til mandatfordeling med valgforbund.
+
+### Brug
+
+```python
+from valgmodel import Valgmodel
+from mandatfordeling import Mandatfordeling, KØBENHAVN_VALGFORBUND
+from generate_live_data import generer_live_data, gem_live_data_json
+
+# 1. Få prediktion fra valgmodellen
+model = Valgmodel("forrige_valg.csv")
+# live_data.csv indeholder kun optalte valgsteder
+
+# 2. Generer komplet data (prediktion + mandatfordeling)
+data = generer_live_data(model, "live_data.csv", 55)
+
+# 3. Gem som JSON til HTML visning
+gem_live_data_json(data, "live_data.json")
+```
+
+### Valgforbund
+
+Mandatfordelingen bruger følgende valgforbund for København:
+
+- **Rød blok 1**: A, B, M (Socialdemokratiet, Radikale, Danmark for Alle)
+- **Blå blok**: C, D, I, K, O, V, Æ (Konservative, Nye Borgerlige, Liberal Alliance, Kristendemokraterne, Dansk Folkeparti, Venstre)
+- **Liste-alliancen**: E, J, P, Q, R, T, Z
+- **Rød blok 2**: F, N, Ø, Å (SF, Kommunisterne, Enhedslisten, Alternativet)
+
+### Test mandatfordeling
+
+```bash
+python mandatfordeling.py
+python integration_test.py
+```
+
+## Live HTML Visning
+
+Systemet inkluderer en live HTML interface til at vise mandatfordelingen visuelt.
+
+### Kom i gang
+
+```bash
+# 1. Generer live data
+python generate_live_data.py
+
+# 2. Start web server
+python serve_live.py
+
+# 3. Åbn http://localhost:8000/live_mandatfordeling.html i din browser
+```
+
+HTML'en opdaterer automatisk hvert 5. sekund når `live_data.json` ændres.
+
+### På valgnatten
+
+```python
+from valgmodel import Valgmodel
+from generate_live_data import generer_live_data, gem_live_data_json
+import time
+
+# Initialiser model
+model = Valgmodel("Kommunalvalg_2021_København.csv")
+
+# Loop der kører hele valgnatten
+while True:
+    # Din live CSV opdateres af valgsystemet
+    # Den indeholder kun valgsteder der er optalt
+    data = generer_live_data(model, "live_data.csv", 55)
+    gem_live_data_json(data, "live_data.json")
+
+    # HTML opdaterer automatisk!
+    time.sleep(5)
+```
+
+Se `valgnat_workflow.py` for komplet eksempel.
+
+## Filstruktur
+
+- `valgmodel.py` - Hoved valgmodel (swing-baseret prediktion)
+- `mandatfordeling.py` - D'Hondt mandatfordeling med valgforbund
+- `generate_live_data.py` - Genererer JSON data fra CSV
+- `live_mandatfordeling.html` - Live HTML visning
+- `serve_live.py` - Simpel web server
+- `valgnat_workflow.py` - Komplet workflow eksempel
+- `test_realistic.py` - Test med simulerede ændringer
+- `requirements.txt` - Python dependencies
+
 ## Licens
 
 MIT
