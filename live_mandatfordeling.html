@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Mandatfordeling - København</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .metadata {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 20px;
+            font-size: 1.1em;
+        }
+
+        .metadata-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .metadata-label {
+            color: #7f8c8d;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .metadata-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #ecf0f1;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-top: 15px;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .seats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .seat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            border-left: 5px solid #3498db;
+        }
+
+        .seat-card.top {
+            border-left-color: #e74c3c;
+        }
+
+        .party-letter {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .party-seats {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .party-percent {
+            color: #7f8c8d;
+            font-size: 1.1em;
+        }
+
+        .alliance-section {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 25px;
+        }
+
+        .alliance-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #ecf0f1;
+        }
+
+        .alliance-name {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .alliance-seats {
+            font-size: 2em;
+            font-weight: bold;
+            color: #3498db;
+        }
+
+        .parties-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .party-box {
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            color: white;
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+
+        .party-box:hover {
+            transform: translateY(-5px);
+        }
+
+        .party-box-letter {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .party-box-seats {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .party-box-percent {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .visualization {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .visualization h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .seats-grid {
+            display: grid;
+            grid-template-columns: repeat(11, 1fr);
+            gap: 8px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .seat {
+            width: 100%;
+            padding-bottom: 100%;
+            border-radius: 50%;
+            position: relative;
+            transition: transform 0.2s;
+        }
+
+        .seat:hover {
+            transform: scale(1.2);
+            z-index: 10;
+        }
+
+        .seat-tooltip {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8em;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+        }
+
+        .seat:hover .seat-tooltip {
+            opacity: 1;
+        }
+
+        .refresh-info {
+            text-align: center;
+            color: white;
+            margin-top: 20px;
+            font-size: 0.9em;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .loading {
+            animation: pulse 1.5s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🗳️ Live Mandatfordeling - København</h1>
+            <div class="metadata">
+                <div class="metadata-item">
+                    <div class="metadata-label">Mandater fordelt</div>
+                    <div class="metadata-value" id="total-mandater">-</div>
+                </div>
+                <div class="metadata-item">
+                    <div class="metadata-label">Total stemmer</div>
+                    <div class="metadata-value" id="total-stemmer">-</div>
+                </div>
+                <div class="metadata-item">
+                    <div class="metadata-label">Valgsteder optalt</div>
+                    <div class="metadata-value" id="valgsteder-optalt">-</div>
+                </div>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress" style="width: 0%">
+                    <span id="progress-text">0%</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="visualization">
+            <h2>Mandatfordeling (55 pladser)</h2>
+            <div class="seats-grid" id="seats-grid"></div>
+        </div>
+
+        <div id="alliances"></div>
+
+        <div class="seats-overview" id="top-parties"></div>
+
+        <div class="refresh-info">
+            <p>Sidst opdateret: <span id="last-update">-</span></p>
+            <p>Opdaterer automatisk hvert 5. sekund</p>
+        </div>
+    </div>
+
+    <script>
+        let currentData = null;
+
+        async function loadData() {
+            try {
+                const response = await fetch('live_data.json?' + new Date().getTime());
+                const data = await response.json();
+                currentData = data;
+                updateUI(data);
+                updateLastUpdate();
+            } catch (error) {
+                console.error('Fejl ved indlæsning af data:', error);
+            }
+        }
+
+        function updateUI(data) {
+            // Opdater metadata
+            document.getElementById('total-mandater').textContent = data.metadata.total_mandater;
+            document.getElementById('total-stemmer').textContent = data.metadata.total_stemmer.toLocaleString('da-DK');
+            document.getElementById('valgsteder-optalt').textContent =
+                `${data.metadata.antal_optalte_valgsteder} (${data.metadata.procent_optalt.toFixed(1)}%)`;
+
+            // Opdater progress bar
+            const progress = document.getElementById('progress');
+            const progressText = document.getElementById('progress-text');
+            const pct = data.metadata.procent_optalt.toFixed(1);
+            progress.style.width = pct + '%';
+            progressText.textContent = pct + '% optalt';
+
+            // Opdater seats grid
+            updateSeatsGrid(data);
+
+            // Opdater forbund
+            updateAlliances(data);
+
+            // Opdater top partier
+            updateTopParties(data);
+        }
+
+        function updateSeatsGrid(data) {
+            const grid = document.getElementById('seats-grid');
+            grid.innerHTML = '';
+
+            let seatIndex = 0;
+            data.partier.forEach(parti => {
+                for (let i = 0; i < parti.mandater; i++) {
+                    const seat = document.createElement('div');
+                    seat.className = 'seat';
+                    seat.style.backgroundColor = parti.farve;
+                    seat.innerHTML = `<div class="seat-tooltip">${parti.bogstav}</div>`;
+                    grid.appendChild(seat);
+                    seatIndex++;
+                }
+            });
+
+            // Fyld resten med grå pladser
+            for (let i = seatIndex; i < 55; i++) {
+                const seat = document.createElement('div');
+                seat.className = 'seat';
+                seat.style.backgroundColor = '#ecf0f1';
+                grid.appendChild(seat);
+            }
+        }
+
+        function updateAlliances(data) {
+            const container = document.getElementById('alliances');
+            container.innerHTML = '';
+
+            data.forbund.forEach(forbund => {
+                if (forbund.mandater === 0) return;
+
+                const section = document.createElement('div');
+                section.className = 'alliance-section';
+
+                section.innerHTML = `
+                    <div class="alliance-header">
+                        <div class="alliance-name">${forbund.navn}</div>
+                        <div class="alliance-seats">${forbund.mandater} mandater</div>
+                    </div>
+                    <div class="parties-grid" id="alliance-${forbund.navn.replace(/\s/g, '-')}"></div>
+                `;
+
+                container.appendChild(section);
+
+                const partiesGrid = section.querySelector('.parties-grid');
+                forbund.partier.forEach(parti => {
+                    if (parti.stemmer === 0) return;
+
+                    const box = document.createElement('div');
+                    box.className = 'party-box';
+                    box.style.backgroundColor = parti.farve;
+                    box.innerHTML = `
+                        <div class="party-box-letter">${parti.bogstav}</div>
+                        <div class="party-box-seats">${parti.mandater} mandater</div>
+                        <div class="party-box-percent">${parti.procent.toFixed(2)}%</div>
+                    `;
+                    partiesGrid.appendChild(box);
+                });
+            });
+        }
+
+        function updateTopParties(data) {
+            const container = document.getElementById('top-parties');
+            container.innerHTML = '';
+
+            const topParties = data.partier.slice(0, 5);
+            topParties.forEach((parti, index) => {
+                const card = document.createElement('div');
+                card.className = index < 3 ? 'seat-card top' : 'seat-card';
+                card.style.borderLeftColor = parti.farve;
+                card.innerHTML = `
+                    <div class="party-letter" style="color: ${parti.farve}">${parti.bogstav}</div>
+                    <div class="party-seats">${parti.mandater} mandater</div>
+                    <div class="party-percent">${parti.procent.toFixed(2)}% af stemmerne</div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function updateLastUpdate() {
+            const now = new Date();
+            document.getElementById('last-update').textContent = now.toLocaleTimeString('da-DK');
+        }
+
+        // Load data ved opstart
+        loadData();
+
+        // Auto-refresh hvert 5. sekund
+        setInterval(loadData, 5000);
+    </script>
+</body>
+</html>

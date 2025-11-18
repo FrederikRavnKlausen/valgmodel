@@ -20,15 +20,18 @@ class Valgmodel:
     delvist optalte valgsteder.
     """
 
-    def __init__(self, forrige_valg_csv: str):
+    def __init__(self, forrige_valg_csv: str, nye_partier: List[str] = None):
         """
         Initialiserer modellen med data fra forrige valg.
 
         Args:
             forrige_valg_csv: Sti til CSV-fil med data fra forrige valg
+            nye_partier: Liste af partibogstaver der skal behandles som nye partier
+                        (selvom de måske findes i forrige valg med samme bogstav)
         """
         self.forrige_valg_data = self._load_data(forrige_valg_csv)
         self.forrige_valg_samlet = self._beregn_samlet_resultat(self.forrige_valg_data)
+        self.nye_partier = set(nye_partier) if nye_partier else set()
 
     def _load_data(self, csv_fil: str) -> pd.DataFrame:
         """
@@ -128,6 +131,10 @@ class Valgmodel:
         # Beregn prediкtion: r_i * (p_i / q_i)
         prediкtion = {}
         for parti in r.keys():
+            # Skip partier der er markeret som nye partier
+            if parti in self.nye_partier:
+                continue
+
             if parti in q and q[parti] > 0:
                 # Hvis partiet findes i både p og q
                 if parti in p:
@@ -148,8 +155,10 @@ class Valgmodel:
                     prediкtion[parti] = r[parti]
 
         # Håndter nye partier der ikke var med sidste gang
+        # ELLER partier der er markeret som nye
         for parti in p.keys():
-            if parti not in prediкtion:
+            if parti not in prediкtion or parti in self.nye_partier:
+                # For nye partier: brug deres nuværende procent direkte
                 prediкtion[parti] = p[parti]
 
         # Normaliser så sum = 100%
@@ -199,41 +208,50 @@ class Valgmodel:
 
 
 if __name__ == "__main__":
-    # Eksempel på brug af modellen
+    print("="*70)
+    print("VALGMODEL - Grundlæggende eksempel")
+    print("="*70)
+    print("""
+VIGTIG BEMÆRKNING:
+Dette eksempel bruger 2021-data både som "nuværende" og "forrige" valg.
+Det betyder at swing = 1.0 for alle partier, og prediктionen bliver
+identisk med 2021-resultatet.
+
+På den rigtige valgnat vil "nuværende" data være forskellig fra "forrige",
+og modellen vil give meningsfulde prediктioner.
+
+Se test_realistic.py for eksempler med reelle forskelle!
+    """)
 
     # Initialiser modellen med data fra 2021
-    model = Valgmodel("Kommunalvalg_2021_København_17-11-2025 20.11.26.csv")
+    # M, N, Æ, Q behandles som nye partier
+    model = Valgmodel(
+        "Kommunalvalg_2021_København_17-11-2025 20.11.26.csv",
+        nye_partier=["M", "N", "Æ", "Q"]
+    )
 
     # Vis det faktiske resultat fra 2021
-    print("\nFaktisk resultat fra 2021:")
-    model.print_resultat(model.forrige_valg_samlet, "Kommunalvalg 2021 København")
+    model.print_resultat(model.forrige_valg_samlet, "Faktisk resultat 2021")
 
-    # Simuler at vi kun har fået data fra nogle få valgsteder
-    # (I praksis ville du bruge de valgsteder der faktisk er optalt)
+    # Test med nogle få valgsteder
+    print("\nTester modellen med 4 valgsteder...")
+    print("(Bruger samme 2021-data → swing = 1.0 → prediкtion = 2021-resultat)")
+
     eksempel_valgsteder = [
-        "1. 1. Østerbro",
-        "1. 2. Østerbro",
-        "2. 1. Nørrebro",
-        "2. 2. Nørrebro"
+        "12. 3. Nord",
+        "17. 4. Nord",
+        "13. 3. Syd",
+        "18. 4. Syd"
     ]
 
-    print(f"\nSimulerer prediкtion baseret på {len(eksempel_valgsteder)} valgsteder...")
-    print(f"Valgsteder: {', '.join(eksempel_valgsteder)}")
-
-    # I dette eksempel bruger vi samme data (2021) både som "nuværende" og "forrige"
-    # På valgnatten ville du have live data som "nuværende"
+    # Brug samme data (derfor vil resultat være identisk)
     prediкtion = model.prediкer_fra_csv(
         "Kommunalvalg_2021_København_17-11-2025 20.11.26.csv",
         eksempel_valgsteder
     )
 
-    model.print_resultat(prediкtion, "Prediкeret resultat")
+    model.print_resultat(prediкtion, "Prediкtion (4 valgsteder)")
 
-    # Sammenlign med faktisk resultat
-    print("\nForskel fra faktisk resultat 2021:")
-    print("=" * 60)
-    for parti in sorted(model.forrige_valg_samlet.keys()):
-        if parti in prediкtion:
-            diff = prediкtion[parti] - model.forrige_valg_samlet[parti]
-            print(f"{parti:3s}: {diff:+6.2f} procentpoint")
-    print("=" * 60)
+    print("\nSom forventet: Prediкtion = 2021-resultat (fordi data er identiske)")
+    print("\nFor at se modellen i aкtion med reelle forskelle, kør:")
+    print("  python test_realistic.py")

@@ -37,6 +37,18 @@ pip install -r requirements.txt
 
 ## Brug
 
+### ⚠️ VIGTIGT at forstå
+
+Modellen sammenligner **nuværende valgdata** med **forrige valgdata** for at beregne swing.
+
+**På valgnatten** vil du have:
+- **Forrige valg**: Komplet data fra 2021 (alle valgsteder)
+- **Nuværende valg**: Delvis live data fra det nye valg (kun optalte valgsteder)
+
+Modellen beregner swing for hvert parti og prediктerer det endelige resultat.
+
+**VIGTIGT**: Hvis du bruger samme data til både "nuværende" og "forrige" (som i grundeksemplet), vil swing altid være 1.0, og prediктionen vil være identisk med forrige valgs resultat. Dette er ikke en fejl - det er sådan modellen fungerer! På valgnatten vil data være forskellige.
+
 ### Grundlæggende eksempel
 
 ```python
@@ -130,16 +142,116 @@ model.print_resultat(pred, f"Prediкtion ({len(optalte)} valgsteder)")
 
 ## Test
 
-Kør eksemplet:
+### Grundlæggende test
 
 ```bash
 python valgmodel.py
 ```
 
-Dette viser:
-1. Det faktiske resultat fra 2021
-2. En simuleret prediкtion baseret på nogle få valgsteder
-3. Forskellen mellem prediкtion og faktisk resultat
+Dette viser modellens grundstruktur (men giver samme resultat som 2021 fordi vi bruger samme data).
+
+### Realistisk test med faktiske ændringer
+
+```bash
+python test_realistic.py
+```
+
+Dette simulerer et rigtigt valg hvor:
+- Enhedslisten (Ø) går 5pp frem
+- Socialdemokratiet (A) går 3pp tilbage
+- Konservative (C) går 2pp tilbage
+
+Og viser hvordan modellen prediктerer korrekt baseret på delvist optalte valgsteder.
+
+## Mandatfordeling
+
+Systemet inkluderer også D'Hondt-metoden til mandatfordeling med valgforbund.
+
+### Brug
+
+```python
+from valgmodel import Valgmodel
+from mandatfordeling import Mandatfordeling, KØBENHAVN_VALGFORBUND
+from generate_live_data import generer_live_data, gem_live_data_json
+
+# 1. Få prediktion fra valgmodellen
+model = Valgmodel("forrige_valg.csv")
+# live_data.csv indeholder kun optalte valgsteder
+
+# 2. Generer komplet data (prediktion + mandatfordeling)
+data = generer_live_data(model, "live_data.csv", 55)
+
+# 3. Gem som JSON til HTML visning
+gem_live_data_json(data, "live_data.json")
+```
+
+### Valgforbund
+
+Mandatfordelingen bruger følgende valgforbund for København:
+
+- **Rød blok 1**: A, B, M (Socialdemokratiet, Radikale, Danmark for Alle)
+- **Blå blok**: C, D, I, K, O, V, Æ (Konservative, Nye Borgerlige, Liberal Alliance, Kristendemokraterne, Dansk Folkeparti, Venstre)
+- **Liste-alliancen**: E, J, P, Q, R, T, Z
+- **Rød blok 2**: F, N, Ø, Å (SF, Kommunisterne, Enhedslisten, Alternativet)
+
+### Test mandatfordeling
+
+```bash
+python mandatfordeling.py
+python integration_test.py
+```
+
+## Live HTML Visning
+
+Systemet inkluderer en live HTML interface til at vise mandatfordelingen visuelt.
+
+### Kom i gang
+
+```bash
+# 1. Generer live data
+python generate_live_data.py
+
+# 2. Start web server
+python serve_live.py
+
+# 3. Åbn http://localhost:8000/live_mandatfordeling.html i din browser
+```
+
+HTML'en opdaterer automatisk hvert 5. sekund når `live_data.json` ændres.
+
+### På valgnatten
+
+```python
+from valgmodel import Valgmodel
+from generate_live_data import generer_live_data, gem_live_data_json
+import time
+
+# Initialiser model
+model = Valgmodel("Kommunalvalg_2021_København.csv")
+
+# Loop der kører hele valgnatten
+while True:
+    # Din live CSV opdateres af valgsystemet
+    # Den indeholder kun valgsteder der er optalt
+    data = generer_live_data(model, "live_data.csv", 55)
+    gem_live_data_json(data, "live_data.json")
+
+    # HTML opdaterer automatisk!
+    time.sleep(5)
+```
+
+Se `valgnat_workflow.py` for komplet eksempel.
+
+## Filstruktur
+
+- `valgmodel.py` - Hoved valgmodel (swing-baseret prediktion)
+- `mandatfordeling.py` - D'Hondt mandatfordeling med valgforbund
+- `generate_live_data.py` - Genererer JSON data fra CSV
+- `live_mandatfordeling.html` - Live HTML visning
+- `serve_live.py` - Simpel web server
+- `valgnat_workflow.py` - Komplet workflow eksempel
+- `test_realistic.py` - Test med simulerede ændringer
+- `requirements.txt` - Python dependencies
 
 ## Licens
 
