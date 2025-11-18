@@ -219,10 +219,10 @@ class Mandatfordeling:
 
 # Standard valgforbund for København
 KØBENHAVN_VALGFORBUND = {
-    "Rød blok 1 (A, B, M)": ["A", "B", "M"],
+    "Centrum-Venstre (A, B, M)": ["A", "B", "M"],
     "Blå blok (C, D, I, K, O, V, Æ)": ["C", "D", "I", "K", "O", "V", "Æ"],
-    "Liste-alliancen (E, J, P, Q, R, T, Z)": ["E", "J", "P", "Q", "R", "T", "Z"],
-    "Rød blok 2 (F, N, Ø, Å)": ["F", "N", "Ø", "Å"],
+    "Ekstreme Venstre (E, J, P, Q, R, T, Z)": ["E", "J", "P", "Q", "R", "T", "Z"],
+    "Venstrefløjen (F, N, Ø, Å)": ["F", "N", "Ø", "Å"],
 }
 
 

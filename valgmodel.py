@@ -20,15 +20,18 @@ class Valgmodel:
     delvist optalte valgsteder.
     """
 
-    def __init__(self, forrige_valg_csv: str):
+    def __init__(self, forrige_valg_csv: str, nye_partier: List[str] = None):
         """
         Initialiserer modellen med data fra forrige valg.
 
         Args:
             forrige_valg_csv: Sti til CSV-fil med data fra forrige valg
+            nye_partier: Liste af partibogstaver der skal behandles som nye partier
+                        (selvom de måske findes i forrige valg med samme bogstav)
         """
         self.forrige_valg_data = self._load_data(forrige_valg_csv)
         self.forrige_valg_samlet = self._beregn_samlet_resultat(self.forrige_valg_data)
+        self.nye_partier = set(nye_partier) if nye_partier else set()
 
     def _load_data(self, csv_fil: str) -> pd.DataFrame:
         """
@@ -128,6 +131,10 @@ class Valgmodel:
         # Beregn prediкtion: r_i * (p_i / q_i)
         prediкtion = {}
         for parti in r.keys():
+            # Skip partier der er markeret som nye partier
+            if parti in self.nye_partier:
+                continue
+
             if parti in q and q[parti] > 0:
                 # Hvis partiet findes i både p og q
                 if parti in p:
@@ -148,8 +155,10 @@ class Valgmodel:
                     prediкtion[parti] = r[parti]
 
         # Håndter nye partier der ikke var med sidste gang
+        # ELLER partier der er markeret som nye
         for parti in p.keys():
-            if parti not in prediкtion:
+            if parti not in prediкtion or parti in self.nye_partier:
+                # For nye partier: brug deres nuværende procent direkte
                 prediкtion[parti] = p[parti]
 
         # Normaliser så sum = 100%
@@ -215,7 +224,11 @@ Se test_realistic.py for eksempler med reelle forskelle!
     """)
 
     # Initialiser modellen med data fra 2021
-    model = Valgmodel("Kommunalvalg_2021_København_17-11-2025 20.11.26.csv")
+    # M, N, Æ, Q behandles som nye partier
+    model = Valgmodel(
+        "Kommunalvalg_2021_København_17-11-2025 20.11.26.csv",
+        nye_partier=["M", "N", "Æ", "Q"]
+    )
 
     # Vis det faktiske resultat fra 2021
     model.print_resultat(model.forrige_valg_samlet, "Faktisk resultat 2021")

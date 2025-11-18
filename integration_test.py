@@ -5,6 +5,9 @@ Test integration mellem valgmodel og mandatfordeling.
 from valgmodel import Valgmodel
 from mandatfordeling import Mandatfordeling, KØBENHAVN_VALGFORBUND
 
+# Partier der skal behandles som nye
+NYE_PARTIER = ["M", "N", "Æ", "Q"]
+
 
 def test_fuld_integration():
     """Test komplet flow fra stemmer til mandater."""
@@ -13,7 +16,10 @@ def test_fuld_integration():
     print("="*70)
 
     # 1. Load valgmodel
-    model = Valgmodel("Kommunalvalg_2021_København_17-11-2025 20.11.26.csv")
+    model = Valgmodel(
+        "Kommunalvalg_2021_København_17-11-2025 20.11.26.csv",
+        nye_partier=NYE_PARTIER
+    )
 
     # 2. Få stemmer fra 2021 (i virkeligheden ville dette være prediкtion)
     print("\nBruger 2021-resultatet som eksempel...")

@@ -6,6 +6,9 @@ import json
 from valgmodel import Valgmodel
 from mandatfordeling import Mandatfordeling, KØBENHAVN_VALGFORBUND
 
+# Partier der skal behandles som nye (ikke samme som ved forrige valg)
+NYE_PARTIER = ["M", "N", "Æ", "Q"]
+
 
 def generer_live_data(
     model: Valgmodel,
@@ -63,12 +66,12 @@ def generer_live_data(
         "D": "#5BC0EB",  # Nye Borgerlige - lyseblå
         "F": "#9C1D5A",  # SF - lilla
         "I": "#3FB2BE",  # Liberal Alliance - cyan
-        "O": "#3D6F8D",  # Dansk Folkeparti - blå
+        "O": "#FFD700",  # Dansk Folkeparti - gul
         "V": "#254D73",  # Venstre - mørkeblå
         "Ø": "#E6801A",  # Enhedslisten - orange/rød
         "Å": "#50A64E",  # Alternativet - grøn
         "K": "#F4CE50",  # Kristendemokraterne - gul
-        "M": "#4BA146",  # Danmark for Alle - grøn
+        "M": "#8B4789",  # Danmark for Alle - lilla
         "N": "#DC143C",  # Kommunisterne - rød
     }
 
@@ -131,7 +134,10 @@ def gem_live_data_json(output: dict, filnavn: str = "live_data.json"):
 
 if __name__ == "__main__":
     # Test eksempel
-    model = Valgmodel("Kommunalvalg_2021_København_17-11-2025 20.11.26.csv")
+    model = Valgmodel(
+        "Kommunalvalg_2021_København_17-11-2025 20.11.26.csv",
+        nye_partier=NYE_PARTIER
+    )
 
     # Generer data
     # CSV'en indeholder automatisk hvilke valgsteder der er optalt

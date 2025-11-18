@@ -10,7 +10,7 @@ Dette script viser hvordan du:
 """
 
 from valgmodel import Valgmodel
-from generate_live_data import generer_live_data, gem_live_data_json
+from generate_live_data import generer_live_data, gem_live_data_json, NYE_PARTIER
 import time
 
 
@@ -24,7 +24,10 @@ def simuler_valgnat():
     print("\nInitialiserer valgmodel med data fra 2021...")
 
     # 1. Initialiser model
-    model = Valgmodel("Kommunalvalg_2021_København_17-11-2025 20.11.26.csv")
+    model = Valgmodel(
+        "Kommunalvalg_2021_København_17-11-2025 20.11.26.csv",
+        nye_partier=NYE_PARTIER
+    )
 
     # 2. Hent alle valgsteder
     alle_valgsteder = list(model.forrige_valg_data['Valgsted'].unique())

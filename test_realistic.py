@@ -6,6 +6,9 @@ from valgmodel import Valgmodel
 import pandas as pd
 import numpy as np
 
+# Partier der skal behandles som nye
+NYE_PARTIER = ["M", "N", "Æ", "Q"]
+
 
 def simuler_valg_med_swing():
     """
@@ -16,7 +19,10 @@ def simuler_valg_med_swing():
     print("="*70)
 
     # Load 2021 data som "forrige valg"
-    model = Valgmodel("Kommunalvalg_2021_København_17-11-2025 20.11.26.csv")
+    model = Valgmodel(
+        "Kommunalvalg_2021_København_17-11-2025 20.11.26.csv",
+        nye_partier=NYE_PARTIER
+    )
 
     print("\nSimulerer at følgende er sket siden 2021:")
     print("  - Enhedslisten (Ø) går 5 procentpoint frem")
@@ -96,7 +102,10 @@ def test_med_reelle_forskelle():
     print("TEST: Forskellige områder giver forskellige prediктioner")
     print("="*70)
 
-    model = Valgmodel("Kommunalvalg_2021_København_17-11-2025 20.11.26.csv")
+    model = Valgmodel(
+        "Kommunalvalg_2021_København_17-11-2025 20.11.26.csv",
+        nye_partier=NYE_PARTIER
+    )
 
     # Lav simuleret data med geografiske forskelle
     nuværende_data = model.forrige_valg_data.copy()

@@ -9,7 +9,7 @@ Dette script viser hvordan du bruger systemet på valgnatten:
 """
 
 from valgmodel import Valgmodel
-from generate_live_data import generer_live_data, gem_live_data_json
+from generate_live_data import generer_live_data, gem_live_data_json, NYE_PARTIER
 import time
 import os
 
@@ -142,7 +142,10 @@ if __name__ == "__main__":
         input()
 
         # Brug 2021 data som eksempel
-        model = Valgmodel("Kommunalvalg_2021_København_17-11-2025 20.11.26.csv")
+        model = Valgmodel(
+            "Kommunalvalg_2021_København_17-11-2025 20.11.26.csv",
+            nye_partier=NYE_PARTIER
+        )
 
         # Overvåg filen
         watch_and_update(
